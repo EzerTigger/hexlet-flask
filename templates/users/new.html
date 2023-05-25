@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Создание нового пользователя</title>
+  <link rel="stylesheet" href="/static/new.css">
+</head>
+<body>
+  <form action="/users" method="post">
+  <div>
+    <label>
+      Nickname
+      <input type="text" required name="nickname" value="{{ user.nickname|default('', true) }}">
+    </label>
+    {% if errors %}
+      <div>{{ errors.nickname }}</div>
+    {% endif %}
+  </div>
+  <div>
+    <label>
+      Email
+      <input type="email" required name="email">
+    </label>
+  </div>
+  <input type="submit" value="Sign Up">
+</form>
+</body>
+</html>
