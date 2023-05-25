@@ -94,17 +94,9 @@ def new_user():
 
 @app.route('/users/<id>/edit')
 def edit_user(id):
-    patching_user = {}
-    with open('templates/users/users.json') as f:
-        all_users = json.load(f)['users']
-
-    for user in all_users:
-        if user['id'] == id:
-            patching_user = user
-            break
-
+    users = json.loads(request.cookies.get('users', json.dumps([])))
+    patching_user = get_user(users, id)
     errors = []
-
     return render_template(
         'users/edit.html',
         user=patching_user,
@@ -114,17 +106,9 @@ def edit_user(id):
 
 @app.route('/users/<id>/patch', methods=['POST'])
 def patch_user(id):
-    patching_user = {}
-    with open('templates/users/users.json') as f:
-        all_users = json.load(f)
-
-    for user in all_users['users']:
-        if user['id'] == id:
-            patching_user = user
-            break
-
+    users = json.loads(request.cookies.get('users', json.dumps([])))
+    patching_user = get_user(users, id)
     data = request.form.to_dict()
-
     errors = validate(data)
     if errors:
         return render_template(
@@ -134,26 +118,20 @@ def patch_user(id):
         ), 422
 
     patching_user['nickname'] = data['nickname']
-    with open('templates/users/users.json', 'w') as outfile:
-        outfile.write(json.dumps(all_users, indent=2))
+    encode_users = json.dumps(users)
+    response = redirect(url_for('get_users'))
+    response.set_cookie('users', encode_users)
     flash('User has been updated', 'success')
-    return redirect(url_for('get_users'))
+    return response
 
 
 @app.route('/users/<id>/delete', methods=['POST'])
 def delete_user(id):
-    deleting_user = {}
-    with open('templates/users/users.json') as f:
-        all_users = json.load(f)
-
-    for user in all_users['users']:
-        if user['id'] == id:
-            deleting_user = user
-            break
-
-    all_users['users'].remove(deleting_user)
-    with open('templates/users/users.json', 'w') as outfile:
-        outfile.write(json.dumps(all_users, indent=2))
-
+    users = json.loads(request.cookies.get('users', json.dumps([])))
+    deleting_user = get_user(users, id)
+    users.remove(deleting_user)
+    encode_users = json.dumps(users)
+    response = redirect(url_for('get_users'))
+    response.set_cookie('users', encode_users)
     flash('User has been deleted', 'success')
-    return redirect(url_for('get_users'))
+    return response
