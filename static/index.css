@@ -1,0 +1,20 @@
+body {
+    font-size: 20px;
+}
+
+tr {
+    display: block;
+    margin: 10px;
+}
+.user {
+    display: block;
+    margin: 10px;
+}
+
+.edit {
+    background: goldenrod;
+}
+
+.remove {
+    background: red;
+}

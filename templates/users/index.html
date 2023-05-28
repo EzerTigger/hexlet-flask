@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Title</title>
+  <link rel="stylesheet" href="/static/index.css">
 </head>
 <body>
   {% if messages %}
@@ -23,12 +24,12 @@
         {{ user.id }}
       </td>
       <td>
-        <a href="{{ url_for('user_page', id=user.id) }}">{{ user.nickname }}</a>
+        <a href="{{ url_for('user_page', id=user.id) }}" class="user">{{ user.nickname }}</a>
         <form action="{{ url_for('edit_user', id=user.id) }}">
-          <input type="submit" value="Edit">
+          <input type="submit" value="Edit" class="edit">
         </form>
         <form action="{{ url_for('delete_user', id=user.id) }}" method="post">
-          <input type="submit" value="Remove">
+          <input type="submit" value="Remove" class="remove">
         </form>
       </td>
     </tr>
