@@ -12,9 +12,9 @@
   {% endfor %}
   </ul>
   {% endif %}
-  <form method="get">
-  <input type="search" required name="term">
-  <input type="submit" value="Search" />
+  <form action="{{ url_for('get_users') }}" method="get">
+    <input type="search" required name="term">
+    <input type="submit" value="Search" />
   </form>
   <table>
     {% for user in users %}
@@ -34,5 +34,10 @@
     </tr>
     {% endfor %}
 </table>
+<br>
+<a href="{{ url_for('new_user') }}">Add new user</a>
+<form action="/">
+  <input type="submit" value="Logout">
+</form>
 </body>
 </html>

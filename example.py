@@ -1,11 +1,11 @@
-import json
 
-from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages
+from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages, session
 
 # Это callable WSGI-приложение
 app = Flask(__name__)
 
 app.secret_key = "secret_key"
+app.config['SECRET_KEY'] = 'b722f75d2433fac5e59a481a7dbc387f181bc730'
 
 
 def get_user(arr, id):
@@ -25,10 +25,11 @@ def validate(user):
 
 @app.route('/users')
 def get_users():
-    all_users = json.loads(request.cookies.get('users', json.dumps([])))
+    all_users = session['users']
     term = request.args.get('term')
     if term:
-        filtered_names = list(filter(lambda name: term in name, all_users))
+        filtered_names = list(
+            filter(lambda name: term in name['nickname'], all_users))
         users = filtered_names
     else:
         users = all_users
@@ -43,7 +44,7 @@ def get_users():
 
 @app.route('/users/<id>')
 def user_page(id):
-    users = json.loads(request.cookies.get('users', json.dumps([])))
+    users = session['users']
     user = get_user(users, id)
     if not user:
         return 'Page not found', 404
@@ -55,7 +56,21 @@ def user_page(id):
 
 @app.post('/users')
 def users_post():
+    if session.get('users') is None:
+        session['users'] = []
+    if session.get('next_id') is None:
+        session['next_id'] = '0'
     new_user = request.form.to_dict()
+    if new_user.get('nickname') is None:
+        if session['users']:
+            for user in session['users']:
+                if user['email'] == new_user['email']:
+                    response = redirect(url_for('get_users'))
+                    return response
+            return render_template(
+                '/users/auth.html',
+                errors={'email': 'Нет такого пользователя'}
+            ), 422
     errors = validate(new_user)
     if errors:
         return render_template(
@@ -63,20 +78,17 @@ def users_post():
             user=new_user,
             errors=errors,
         ), 422
-    users = json.loads(request.cookies.get('users', json.dumps([])))
-    next_id = json.loads(request.cookies.get('next_id', json.dumps('0')))
+
+    users = session['users']
+    next_id = session['next_id']
     user = {
         'id': next_id,
         'nickname': new_user['nickname'],
         'email': new_user['email']
     }
-    next_id = str(int(next_id) + 1)
+    session['next_id'] = str(int(next_id) + 1)
     users.append(user)
-    encode_users = json.dumps(users)
-    encode_id = json.dumps(next_id)
     response = redirect(url_for('get_users'))
-    response.set_cookie('users', encode_users)
-    response.set_cookie('next_id', encode_id)
     flash('User was added successfully', 'success')
     return response
 
@@ -94,7 +106,7 @@ def new_user():
 
 @app.route('/users/<id>/edit')
 def edit_user(id):
-    users = json.loads(request.cookies.get('users', json.dumps([])))
+    users = session['users']
     patching_user = get_user(users, id)
     errors = []
     return render_template(
@@ -106,7 +118,7 @@ def edit_user(id):
 
 @app.route('/users/<id>/patch', methods=['POST'])
 def patch_user(id):
-    users = json.loads(request.cookies.get('users', json.dumps([])))
+    users = session['users']
     patching_user = get_user(users, id)
     data = request.form.to_dict()
     errors = validate(data)
@@ -118,20 +130,27 @@ def patch_user(id):
         ), 422
 
     patching_user['nickname'] = data['nickname']
-    encode_users = json.dumps(users)
     response = redirect(url_for('get_users'))
-    response.set_cookie('users', encode_users)
     flash('User has been updated', 'success')
     return response
 
 
 @app.route('/users/<id>/delete', methods=['POST'])
 def delete_user(id):
-    users = json.loads(request.cookies.get('users', json.dumps([])))
+    users = session['users']
     deleting_user = get_user(users, id)
     users.remove(deleting_user)
-    encode_users = json.dumps(users)
     response = redirect(url_for('get_users'))
-    response.set_cookie('users', encode_users)
     flash('User has been deleted', 'success')
     return response
+
+
+@app.route('/')
+def login_user():
+    user = []
+    errors = []
+    return render_template(
+        '/users/auth.html',
+        user=user,
+        errors=errors
+    )
