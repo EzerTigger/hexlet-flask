@@ -1,4 +1,4 @@
-
+import os
 from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages, session
 
 # Это callable WSGI-приложение
@@ -154,3 +154,8 @@ def login_user():
         user=user,
         errors=errors
     )
+
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8080))
+    app.run(host='127.0.0.1', port=port)
