@@ -4,7 +4,6 @@ from flask import Flask, render_template, request, redirect, url_for, flash, get
 # Это callable WSGI-приложение
 app = Flask(__name__)
 
-app.secret_key = "secret_key"
 app.config['SECRET_KEY'] = 'b722f75d2433fac5e59a481a7dbc387f181bc730'
 
 
