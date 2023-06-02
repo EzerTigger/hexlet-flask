@@ -154,3 +154,7 @@ def login_user():
         user=user,
         errors=errors
     )
+
+
+if __name__ == '__main__':
+    app.run()
