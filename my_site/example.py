@@ -70,13 +70,19 @@ def users_post():
                 '/users/auth.html',
                 errors={'email': 'Нет такого пользователя'}
             ), 422
-    errors = validate(new_user)
-    if errors:
-        return render_template(
-            '/users/new.html',
-            user=new_user,
-            errors=errors,
-        ), 422
+        else:
+            return render_template(
+                '/users/auth.html',
+                errors={'email': 'Зарегистрируйтесь'}
+            ), 422
+
+    # errors = validate(new_user)
+    # if errors:
+    #     return render_template(
+    #         '/users/new.html',
+    #         user=new_user,
+    #         errors=errors,
+    #     ), 422
 
     users = session['users']
     next_id = session['next_id']
