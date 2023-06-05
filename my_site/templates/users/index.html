@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Title</title>
-  <link rel="stylesheet" href="/static/index.css">
+  <link rel="stylesheet" href="/index.css">
 </head>
 <body>
   {% if messages %}
@@ -37,7 +37,7 @@
 </table>
 <br>
 <a href="{{ url_for('new_user') }}">Add new user</a>
-<form action="/">
+<form action="/my_site/static">
   <input type="submit" value="Logout">
 </form>
 </body>
